@@ -1,17 +1,34 @@
-version: '3'
+version : '3'
+
 services:
   mysql:
-    container_name: mysql
     image: mysql:8.0.16
+    container_name: mysql
     environment:
-      MYSQL_DATABASE: test
-      MYSQL_USER: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test
       MYSQL_ROOT_HOST: '%'
     ports:
       - 3306:3306
-    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8mb4 --explicit_defaults_for_timestamp
+    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8mb4 --explicit_defaults_for_timestamp --default-authentication-plugin=mysql_native_password
     restart: always
     tty: true
-    # volumes:
-    #     - ./data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - mysql
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
+      MYSQL_ROOT_PASSWORD: root
+    restart: always
+    ports:
+      - 8000:80
